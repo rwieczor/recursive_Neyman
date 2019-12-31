@@ -1,15 +1,15 @@
 
+
 #' @title Optimal univariate allocation under upper constraints for stratified sampling
-#' @description Classical recursive Neyman algorithm for optimal allocation in stratified sampling
-#'   with upper constraints
+#' @description Classical recursive Neyman algorithm for optimal allocation in 
+#' stratified sampling with upper constraints
 #'
 #' @param n -  target sample size for allocation
 #' @param Nh - population sizes in strata
 #' @param Sh - standard deviations for given variable in strata
 #' @param Mh - upper constraints for sample sizes in strata
 #'
-#' @return list with: vector of optimal allocation sizes,
-#'  value of variance for obtained allocation, 
+#' @return  vector of optimal allocation sizes,
 #'  and number of iterations 
 #'
 #' @references Särndal, Swensson and Wretman (1992), Model Assisted 
@@ -18,9 +18,11 @@
 #' @export
 
 
-rNa <- function(n, Nh, Sh, Mh)
+rNa <- function(n, Nh, Sh, Mh=NULL)
   # Mh - ograniczenia gorne
 {
+  if (is.null(Mh)) Mh <- Nh
+
   H <- length(Nh)
   
   M <- sum(Mh)
@@ -40,9 +42,9 @@ rNa <- function(n, Nh, Sh, Mh)
   }
   nh <- pmin(nh,Mh)
     
-  v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
+  #v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
   
-  return(list(nh = nh, v = v, iter=iter))
+  return(list(nh = nh, iter=iter))
   
 }
 

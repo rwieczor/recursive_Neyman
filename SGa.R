@@ -10,7 +10,7 @@
 #' @param Sh - standard deviations for given variable in strata
 #' @param Mh - upper constraints for sample sizes in strata
 #'
-#' @return list with: vector of optimal allocation sizes and value of variance for obtained allocation
+#' @return vector of optimal allocation sizes 
 #'
 #' @references  Horst Stenger, Siegfried Gabler (2005), 
 #' Combining random sampling and census strategies - Justification of inclusion probabilities equal to 1,
@@ -50,9 +50,11 @@ SGa <- function(n, Nh, Sh, Mh=NULL)
   nh[Jstarc] <- Mh[Jstarc]
   nh[Jstar] <- (a/b)*dh[Jstar]
   
-  v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
+  return(nh)
   
-  return(list(nh = nh, v = v))
+  
+  #v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
+  #return(list(nh = nh, v = v))
   
 }
 

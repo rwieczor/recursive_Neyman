@@ -8,9 +8,9 @@
 #' @param mh - lower constraints for sample sizes in strata
 #' @param Mh - upper constraints for sample sizes in strata
 #'
-#' @return list with: vector of optimal allocation sizes and value of variance for obtained allocation
+#' @return  vector of optimal allocation sizes 
 #'
-#' @references Ulf Friedrich, Ralf Münnich, Sven de Vries, Matthias Wagner,
+#' @references Ulf Friedrich, Ralf M?nnich, Sven de Vries, Matthias Wagner,
 #' Fast integer-valued algorithms for optimal allocations under constraints in stratified sampling,
 #' Computational Statistics and Data Analysis 92 (2015), 1-12
 #'
@@ -47,10 +47,11 @@ CapacityScaling <- function(n, Nh, Sh,
     s <- ceiling(s/2)
   }
 
-  nh <- SimpleGreedy(n,Nh,Sh,mh,Mh,nh)$nh
-  v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
-
-  return(list(nh = nh, v = v))
+  nh <- SimpleGreedy(n,Nh,Sh,mh,Mh,nh)
+  return(nh)
+  
+  #v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
+  #return(list(nh = nh, v = v))
 }
 
 
@@ -69,9 +70,9 @@ CapacityScaling <- function(n, Nh, Sh,
 #' @param mh - lower constraints for sample sizes in strata
 #' @param Mh - upper constraints for sample sizes in strata
 #'
-#' @return list with: vector of optimal allocation sizes and value of variance for obtained allocation
+#' @return vector of optimal allocation sizes 
 #'
-#' @references Ulf Friedrich, Ralf Münnich, Sven de Vries, Matthias Wagner,
+#' @references Ulf Friedrich, Ralf M?nnich, Sven de Vries, Matthias Wagner,
 #' Fast integer-valued algorithms for optimal allocations under constraints in stratified sampling,
 #' Computational Statistics and Data Analysis 92 (2015), 1-12
 #'
@@ -116,8 +117,11 @@ CapacityScaling2 <- function(v0, Nh, Sh,
   }
 
   nh <- SimpleGreedy2(v0,Nh,Sh,mh,Mh,nh)$nh
-  v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
-
-  return(list(nh = nh, v = v))
+  
+  return(nh)
+  
+  
+  #v <- sum(Nh * (Nh - nh) * Sh^2 / nh)
+  #return(list(nh = nh, v = v))
 }
 
