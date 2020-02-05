@@ -1,4 +1,4 @@
-﻿
+
 # R code with numerical experiments from paper:
 # Wesolowski J., Wieczorkowski R., Wójciak W. (2019), Recursive Neyman and 
 # Stenger-Gabler-type approach for optimal allocation in stratified sampling
@@ -18,6 +18,7 @@ source("rNa.R")
 source("SGa.R")
 source("com_.R")
 
+source("nopt_u.R") # nowe kody od WW
 
 
 # random rounding
@@ -54,26 +55,45 @@ round_oric <- function(x)
 
 
 
-# generation of artificial population
+# generation of artificial populations
 
 # seed for Nrep=100
 #set.seed(2234)
 
 # seed for Nrep=200
-#set.seed(876)
+set.seed(876)
 
 source("gen_population.R")
-pop <- gen_population(Nrep=150)
+pop <- gen_population(Nrep=200)
 Nh<-pop$Nh
 Sh<-pop$Sh
 NROW(Nh)
 # plot(Nh*Sh)
+
+
+# # population for fig.3
+# Nh <- rep(1000,20)
+# Sh <- 10^(1:20)
+# Sh <- sample(Sh,20) 
+# mh <- rep(100,20)
+# Mh <- Nh
+# dh <- Sh*Nh
+
+
+# # ad. table 1.
+# Nh <- rep(1000,20)
+# Sh <- c(
+# 0.33,2.65,0.15,0.66,0.15,15.45,1.49,1.74,0.30,0.93,2.37,0.36,0.14,0.37,
+# 4.25,0.39,10.21,0.10,0.23,0.51
+# )
+
 
 dh <- Sh*Nh
 mh<-rep(0,length(Nh)) # lower bounds
 Mh <- Nh # upper bounds
 (s1<-sum(mh))
 (s2<-sum(Mh))
+n <- 8000
 
 
 # improving population to have allocation with values greater than 0
@@ -96,6 +116,7 @@ Mh <- Mh[ix]
 
 
 N <- sum(Nh) # population size
+NROW(Nh)
 
 
 
@@ -132,12 +153,12 @@ for (f in seq(0.1,0.5,0.1)) {
     #comal <- coma(n,Nh,Sh, Mh, 0)
     #nh_coma <- comal$nh
     #v_coma <- comal$v
-    nh_coma <- comaR(n,Nh,Sh, Mh, 1)
+    nh_coma <- coma(n,Nh,Sh, Mh)
     v_coma <- varal(Nh,Sh,nh_coma)
     v1_coma <- varal(Nh,Sh,round_oric(nh_coma))
     
     
-    nh_rNa <- rNa(n,Nh,Sh, Mh)$nh
+    nh_rNa <- rNa(n,Nh,Sh, Mh)
     v_rNa <-  varal(Nh,Sh,nh_rNa)
     v1_rNa <- varal(Nh,Sh,round_oric(nh_rNa))
     
@@ -209,11 +230,14 @@ if (s1<n && n<s2) {
 alc<-CapacityScaling(n, Nh, Sh, mh = mh, Mh = Mh)
 #V0<-alc$v
 
-h_over <- sum(rNa(n,Nh,Sh, Mh)$nh>=Mh)  # number of take-all strata
-recursive_Neyman0=round(rNa(n,Nh,Sh, Mh)$nh)
+h_over <- sum(rNa_old(n,Nh,Sh, Mh)$nh>=Mh)  # number of take-all strata
+recursive_Neyman0=round(rNa_old(n,Nh,Sh, Mh)$nh)
+recursive_Neyman=round(rNa(n,Nh,Sh, Mh))
+
+print(all(recursive_Neyman0==recursive_Neyman))
 
 #sequential_al=round(coma(n,Nh,Sh, Mh)$nh)
-sequential_al=round(comaR(n,Nh,Sh, Mh))
+sequential_al=round(coma(n,Nh,Sh, Mh))
 print(all(recursive_Neyman0==sequential_al))
 
   
@@ -222,12 +246,15 @@ options(digits=3)
 ex<-microbenchmark(times=100,unit="ms",
                    CapScal=CapacityScaling(n, Nh, Sh, mh = mh, Mh = Mh),
                    noptcond=noptcond(dh , mh , Mh , n),
-                   rNa=(rNa(n,Nh,Sh, Mh)$nh),
-                   coma=comaR(n,Nh,Sh, Mh, 1),
+                   #rNa=(rNa(n,Nh,Sh, Mh)$nh),
+                   #coma=comaR(n,Nh,Sh, Mh, 1),
+                   rNa=rNa(n,Nh,Sh, Mh),
+                   coma=coma(n,Nh,Sh, Mh),
+                   
                    #coma_R0=comaR(n,Nh,Sh, Mh, 0),
                    #coma_1=coma(n,Nh,Sh, Mh, 1),
                    #coma_0=coma(n,Nh,Sh, Mh, 0),
-                   SGa=SGa(n,Nh,Sh, Mh)
+                   SGa=SGa(n,Nh,Sh, Mh, onebyone = TRUE)
 )
 summary(ex)
 autoplot(ex)
@@ -240,7 +267,7 @@ exi<-group_by(ex,expr) %>%
 exi<-mutate(exi,N=N,f=f,H=length(Nh), hover=h_over)
 
 # adding information about number of iterations for rNa algorithm
-exi$niter <- rNa(n,Nh,Sh, Mh)$iter
+exi$niter <- rNa_old(n,Nh,Sh, Mh)$iter
 
 
 
@@ -254,7 +281,7 @@ tab<-bind_rows(tab,exi)
 
 tab1 <- readRDS("tab1.rds")
 tab2 <- readRDS("tab2.rds")
-#tab3 <- readRDS("tab3.rds")
+#tab <- readRDS("tab3.rds")
 #tab4 <- readRDS("tab4.rds")
 tab <- bind_rows(tab1,tab2)
 
@@ -263,54 +290,74 @@ tab <- bind_rows(tab1,tab2)
 # creation of plots 
 
 library(ggplot2)
-library(ggpubr)
+#library(ggpubr)
 library(ggrepel)
 
 options(digits=6)
 
-# saveRDS(tab,"tab.rds")
-#tab<-readRDS("tab.rds")
 
-tab<-mutate(tab,H=as.factor(H),algorithm=expr , 
-            flab=paste0(as.character(round(hover)),"(",niter,")")  )
+# version of plots based on WW code
+source("to_facet_grid_layout.R")
 
-as.vector(table(tab$N))
+tab1 <- readRDS("tab1.rds")
+tab2 <- readRDS("tab2.rds")
+#tab <- readRDS("tab3.rds")
+#tab4 <- readRDS("tab4.rds")
+tab <- bind_rows(tab1,tab2)
+tab <- filter(tab,expr!='CapScal',expr!='noptcond')
 
-xN<-count(tab,N)$N
-
-levels(tab$H)<-paste(levels(tab$H),"strata,  \nN=", 
-                     #sprintf("%6.1",xN)
-                     xN)
-round(table(tab$N))
-
-
+tab<-mutate(tab,algorithm=expr)
 tab <- mutate(tab,algorithm=relevel(algorithm,"rNa"))
 count(tab,algorithm)
 
-tab <- filter(tab,algorithm!='coma',algorithm!='SGa')
-#tab <- filter(tab,algorithm!='CapScal',algorithm!='noptcond')
+df <- as.data.frame(tab)
+df <- tab
 
-p<-
-  ggplot(data=tab,aes(x=f,y=Median_time, shape=algorithm)) +
-  geom_point(size=2) +
-  geom_line(data=tab,aes(x=f,y=Median_time,linetype=algorithm)) +
-  #geom_text_repel(data=filter(tab,algorithm=="rNa"),aes(x=f,y=Median_time,label=flab)) + 
-  facet_wrap(~H,scale="free") +
-  #scale_x_continuous(breaks = seq(0.1,0.9,0.1)) +
-  labs(x="sample fraction", y="Time [miliseconds]" ,color="Algorithms: ", 
-       title="Time comparison of selected algorithms"
-       #,subtitle = "using microbenchmark package from R"
-       ) + 
-  theme_bw(base_size=12) + theme(legend.position = "right")
-  #theme(legend.position = "right",legend.text=element_text(size=rel(1.2)))
-  #coord_flip()
+# preapre population column, and algorithms facet
+population <- paste0(df$H, " strata, N = ", df$N) # population info (no of strata, pop size)
+population <- factor(population, levels = unique(population)[order(df$H)]) # levels order influences plotting order
 
+df <- data.frame(facet = "algorithms",
+                 plyr::rename(df[, c("expr", "Median_time", "f", "niter", "hover")], c('expr' = 'series', 'Median_time' = 'value')),
+                 population = population,
+                 takeall_pct = (df$hover/df$H )*100) # Take-strata in %
+
+# prepare takeall facet
+df_takeall <- df[, c("f", "population", "takeall_pct", "niter", "hover")]
+df_takeall <- df_takeall[!duplicated(df_takeall), ]
+df_takeall <- data.frame(facet = "takeall",
+                         series = "takeall_pct",
+                         plyr::rename(df_takeall, c('takeall_pct' = 'value')))
+
+# rbind algorithms and takeall facets
+df_plot <- plyr::rbind.fill(df[, colnames(df_takeall)], df_takeall)
+
+
+## plot it
+p <- 
+  ggplot(data = df_plot, mapping = aes(x = f, y = value)) +
+  geom_line(data = subset(df_plot, facet == "algorithms"), mapping = aes(linetype = series)) +
+  geom_point(data = subset(df_plot, facet == "algorithms"), mapping = aes(shape = series), size = 2) +
+  #geom_text(data = subset(df_plot, facet == "algorithms" & series == "rNa"), aes(label = niter), vjust = -.6) +
+  ggrepel::geom_text_repel(data = subset(df_plot, facet == "algorithms" & series == "rNa"), aes(label = niter)) +
+  geom_bar(data = subset(df_plot, facet == "takeall"), mapping = aes(y = value), stat = "identity") +
+  geom_text(data = subset(df_plot, facet == "takeall"), mapping = aes(label = hover), size = 3.0, vjust = 1.2, color="white") +
+  #geom_blank(data = subset(df_plot, facet == "takeall"), mapping = aes(y = 100)) +
+  theme(panel.background = element_rect(fill = NA, colour = "black"),
+        panel.grid = element_line(colour = "grey"),
+        #strip.text.y = element_text(size = 8),
+        strip.background.y = element_blank()) +
+  #plot.title = element_text(hjust = 0.5)) +
+  labs(shape = "Algorithm", linetype = "Algorithm", x = "Sample fraction", 
+       title = "Time comparison of selected algorithms") +
+  facet_wrap(~ facet + population, nrow = 2, scales = "free_y",  
+             labeller = labeller(facet = c('algorithms' = 'Time [milisec]', 'takeall' = 'Take-all \nstrata [%]'))) 
+  #scale_y_continuous(breaks = scales::pretty_breaks(5), expand = expand_scale(mult = c(0.05, 0.06), add = c(0, 13)))  
+  
 p
 
-# ggsave("fig_times_1.pdf",p,device="pdf", dpi=600, width = 8, height = 8/1.618)
-
-
-
+gt <- to_facet_grid_layout(p,panel_resize_factor = 4)
+grid::grid.draw(gt)
 
 
 
