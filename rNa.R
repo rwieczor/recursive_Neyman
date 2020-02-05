@@ -1,5 +1,4 @@
 
-
 #' @title Optimal univariate allocation under upper constraints for stratified sampling
 #' @description Classical recursive Neyman algorithm for optimal allocation in 
 #' stratified sampling with upper constraints
@@ -12,13 +11,13 @@
 #' @return  vector of optimal allocation sizes,
 #'  and number of iterations 
 #'
-#' @references Särndal, Swensson and Wretman (1992), Model Assisted 
+#' @references Sarndal, Swensson and Wretman (1992), Model Assisted 
 #' Survey Sampling
 #'
 #' @export
 
 
-rNa <- function(n, Nh, Sh, Mh=NULL)
+rNa_old <- function(n, Nh, Sh, Mh=NULL)
   # Mh - ograniczenia gorne
 {
   if (is.null(Mh)) Mh <- Nh
