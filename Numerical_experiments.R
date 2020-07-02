@@ -1,8 +1,7 @@
 
 # R code with numerical experiments from paper:
-# Wesolowski J., Wieczorkowski R., Wójciak W. (2019), Recursive Neyman and 
-# Stenger-Gabler-type approach for optimal allocation in stratified sampling
-# under upper bounds on sample strata sizes.
+# Wesolowski J., Wieczorkowski R., Wójciak W. (2020), Recursions for optimal allocation in stratified sampling
+# under one-sided bounds on sample strata sizes
 
 library(dplyr)
 library(microbenchmark)
@@ -18,7 +17,7 @@ source("rNa.R")
 source("SGa.R")
 source("com_.R")
 
-source("nopt_u.R") # nowe kody od WW
+source("nopt_u.R") # new W. Wójciak codes
 
 
 # random rounding
