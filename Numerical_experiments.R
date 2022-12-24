@@ -1,7 +1,7 @@
 
 # R code with numerical experiments from paper:
-# Wesolowski J., Wieczorkowski R., Wójciak W. (2020), Recursions for optimal allocation in stratified sampling
-# under one-sided bounds on sample strata sizes
+# Wesolowski J., Wieczorkowski R., Wójciak W., Optimality of the recursive Neyman allocation,
+# Journal of Survey Statistics and Methodology (2022) 10, 1263–1275.
 
 library(dplyr)
 library(microbenchmark)
